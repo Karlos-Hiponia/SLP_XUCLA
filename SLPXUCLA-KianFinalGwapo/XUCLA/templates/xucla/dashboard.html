@@ -1,0 +1,357 @@
+{% extends "xucla/base.html" %}
+{% load static %}
+
+{% block title %}Activity Dashboard{% endblock %}
+
+{% block content %}
+    <!-- Link to External CSS for dashboard -->
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+
+    <div style="position: relative; z-index: 1;">
+      {% if messages %}
+        <div class="mt-3">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        </div>
+      {% endif %}
+      <div class="dashboard-center-row">
+        <div class="progress-circle-col">
+          <div id="progress-circle-container" style="width: 240px; height: 240px; position: relative;">
+            <svg width="240" height="240" viewBox="0 0 240 240">
+              <circle cx="120" cy="120" r="100" stroke="#e0e6f1" stroke-width="24" fill="none" />
+              <circle id="progress-bar" cx="120" cy="120" r="100" stroke="#3A53A4" stroke-width="24" fill="none" stroke-linecap="round" stroke-dasharray="628" stroke-dashoffset="628"/>
+            </svg>
+            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+              <span id="progress-percent" style="font-size: 3rem; font-weight: 700; color: #3A53A4;">0%</span>
+            </div>
+          </div>
+          <div id="progress-hours" style="font-size: 1.25rem; color: #253793; margin-top: 1.2rem; font-weight: 600; text-align: left;">0 / 60 Hours Rendered</div>
+        </div>
+        <div class="dashboard-main-content">
+          <a href="/submit-activity/" class="btn btn-success mb-0" style="width: 100%; border-radius: 16px 16px 0 0; font-weight: 600; font-size: 1.1rem;">+ Add Work</a>
+          <form method="get" id="activity-filter-form" class="dashboard-filter-form" style="display: flex; align-items: center; gap: 1rem; padding: 0.75rem 1.5rem; color: #fff; width: 100%;">
+              <label for="activity-filter" style="margin-bottom: 0; font-weight: 600; color: #fff;">Filter by Activity:</label>
+              <select id="activity-filter" name="activity_type" class="form-select" style="max-width: 320px; border-radius: 8px; border: none; font-weight: 500; color: #253793; background: #f9faff;">
+                  <option value="All" {% if filter == "All" or not filter %}selected{% endif %}>All</option>
+                  <option value="Case Supervision" {% if filter == "Case Supervision" %}selected{% endif %}>Case Supervision</option>
+                  <option value="Client Consultation" {% if filter == "Client Consultation" %}selected{% endif %}>Client Consultation</option>
+                  <option value="Legal Research" {% if filter == "Legal Research" %}selected{% endif %}>Legal Research</option>
+                  <option value="Drafting of Pleadings or affidavits" {% if filter == "Drafting of Pleadings or affidavits" %}selected{% endif %}>Drafting of Pleadings or affidavits</option>
+                  <option value="Court Appearances" {% if filter == "Court Appearances" %}selected{% endif %}>Court Appearances</option>
+                  <option value="Mediation or ADR Facilitation" {% if filter == "Mediation or ADR Facilitation" %}selected{% endif %}>Mediation or ADR Facilitation</option>
+                  <option value="Training or Lectures for Law Interns" {% if filter == "Training or Lectures for Law Interns" %}selected{% endif %}>Training or Lectures for Law Interns</option>
+                  <option value="Community Legal Education" {% if filter == "Community Legal Education" %}selected{% endif %}>Community Legal Education</option>
+                  <option value="Other" {% if filter == "Other" %}selected{% endif %}>Other (Please specify)</option>
+              </select>
+          </form>
+          <div style="height: 16px;"></div>
+          <script>
+          document.getElementById('activity-filter').addEventListener('change', function() {
+              document.getElementById('activity-filter-form').submit();
+          });
+          </script>
+          <table style="margin-top: 0; width: 100%;">
+              <thead>
+    <tr>
+        <th>Brief Description of Work Done</th>
+        <th>Number of Law Students Supervised</th>
+        <th>Number of Clients Served</th>
+        <th>Date of Activity</th>
+        <th>Hours Rendered</th>
+        <th>Proof of Activity</th>
+        <th>Status</th> <!-- ✅ NEW COLUMN -->
+    </tr>
+</thead>
+
+              <tbody id="activity-table-body">
+                  {% for activity in activities %}
+                  <tr class="activity-row" data-activity-id="{{ activity.id }}"
+    data-description="{{ activity.description|escapejs }}"
+    data-number-of-students="{{ activity.number_of_students }}"
+    data-number-of-clients="{{ activity.number_of_clients }}"
+    data-date="{{ activity.date }}"
+    data-hours-rendered="{{ activity.hours_rendered }}"
+    data-activity-type="{{ activity.activity_type|escapejs }}"
+    data-proof-url="{% if activity.proof %}{{ activity.proof.url }}{% endif %}">
+    
+    <td>{{ activity.description }}</td>
+    <td>{{ activity.number_of_students }}</td>
+    <td>{{ activity.number_of_clients }}</td>
+    <td>{{ activity.date }}</td>
+    <td>{{ activity.hours_rendered }}</td>
+    <td>
+        {% if activity.proof %}
+        <img src="{{ activity.proof.url }}" alt="Proof" class="proof-img"
+             style="max-width: 100px; max-height: 100px; cursor:pointer;"
+             data-bs-toggle="modal" data-bs-target="#proofModal"
+             data-proof-url="{{ activity.proof.url }}">
+        {% else %}
+            No proof uploaded
+        {% endif %}
+    </td>
+    <td>
+        {% if activity.status == 'approved' %}
+            <span style="color: green; font-weight: bold;">Approved</span>
+        {% elif activity.status == 'pending' %}
+            <span style="color: #ffde59; font-weight: bold;">Pending</span>
+        {% elif activity.status == 'rejected' %}
+            <span style="color: red; font-weight: bold;">Rejected</span>
+        {% endif %}
+    </td>
+</tr>
+
+                  {% empty %}
+                  <tr>
+                      <td colspan="6">No activities found.</td>
+                  </tr>
+                  {% endfor %}
+              </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Proof Image Modal -->
+    <div class="modal fade" id="proofModal" tabindex="-1" aria-labelledby="proofModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="proofModalLabel">Proof of Activity</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body text-center">
+            <img id="modalProofImg" src="" alt="Proof" style="max-width:100%; max-height:70vh;">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Activity Details Modal -->
+    <div class="modal fade" id="detailsModal" tabindex="-1" aria-labelledby="detailsModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="detailsModalLabel">Activity Details</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <ul class="details-list">
+              <li><span class="details-label">Activity Type</span><span class="details-value" id="detailsActivityType"></span></li>
+              <li><span class="details-label">Description</span><span class="details-value" id="detailsDescription"></span></li>
+              <li><span class="details-label">Number of Law Students Supervised</span><span class="details-value" id="detailsNumberOfStudents"></span></li>
+              <li><span class="details-label">Number of Clients Served</span><span class="details-value" id="detailsNumberOfClients"></span></li>
+              <li><span class="details-label">Date of Activity</span><span class="details-value" id="detailsDate"></span></li>
+              <li><span class="details-label">Hours Rendered</span><span class="details-value" id="detailsHoursRendered"></span></li>
+              <li><span class="details-label">Proof of Activity</span><span class="details-value" id="detailsProof"></span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <style>
+    /* Enhanced Table Styling */
+    table {
+        background: #fff;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 24px rgba(41,87,191,0.08);
+    }
+    th {
+        background: #3A53A4;
+        color: #fff;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        border: none;
+        font-size: 1.08rem;
+        padding-top: 18px;
+        padding-bottom: 18px;
+    }
+    td {
+        background: #f9faff;
+        color: #253793;
+        font-size: 1.05rem;
+        border: none;
+        vertical-align: middle;
+        padding-top: 16px;
+        padding-bottom: 16px;
+    }
+    tr.activity-row {
+        cursor: pointer;
+        transition: background 0.15s;
+    }
+    tr.activity-row:hover {
+        background: #e0efff !important;
+    }
+    .proof-img {
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(41,87,191,0.10);
+        transition: transform 0.2s;
+    }
+    .proof-img:hover {
+        transform: scale(1.08);
+        box-shadow: 0 4px 16px rgba(41,87,191,0.18);
+    }
+    /* Modal Customization */
+    .modal-content {
+        border-radius: 18px;
+        box-shadow: 0 8px 32px rgba(41,87,191,0.12);
+        border: 2px solid #e0e6f1;
+    }
+    .modal-header {
+        background: #3A53A4;
+        color: #fff;
+        border-bottom: none;
+        border-radius: 16px 16px 0 0;
+        padding-top: 1.2rem;
+        padding-bottom: 1.2rem;
+    }
+    .modal-title {
+        font-weight: 700;
+        font-size: 1.35rem;
+        letter-spacing: 0.5px;
+    }
+    .modal-body {
+        background: #f5f7fa;
+        border-radius: 0 0 16px 16px;
+        padding: 2rem 1.5rem 1.5rem 1.5rem;
+    }
+    .details-list {
+        padding: 0;
+        margin: 0;
+        list-style: none;
+    }
+    .details-list li {
+        background: #fff;
+        border-radius: 10px;
+        margin-bottom: 1rem;
+        padding: 1.1rem 1.2rem;
+        box-shadow: 0 2px 8px rgba(41,87,191,0.06);
+        display: flex;
+        flex-direction: column;
+        font-size: 1.08rem;
+    }
+    .details-label {
+        color: #2957bf;
+        font-weight: 600;
+        font-size: 0.98rem;
+        margin-bottom: 0.2rem;
+        letter-spacing: 0.2px;
+    }
+    .details-value {
+        color: #253793;
+        font-weight: 500;
+        font-size: 1.08rem;
+        word-break: break-word;
+    }
+    @media (max-width: 600px) {
+        .modal-body { padding: 1rem 0.5rem 1rem 0.5rem; }
+        .details-list li { padding: 0.8rem 0.7rem; font-size: 0.98rem; }
+    }
+    body {
+      background: linear-gradient(90deg, #e6e8ec 0%, #f8faff 100%);
+      background-color: #f8faff;
+      min-height: 100vh;
+      position: relative;
+    }
+    .dashboard-center-row {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      justify-content: flex-start;
+      max-width: 1200px;
+      margin: 0 0 2.5rem 1vw;
+      gap: 2.5rem;
+      flex-wrap: nowrap;
+    }
+    .progress-circle-col {
+      min-width: 260px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      margin-right: 2.5rem;
+    }
+    .dashboard-main-content {
+      flex: 1;
+      min-width: 0;
+      max-width: 900px;
+    }
+    @media (max-width: 1100px) {
+      .dashboard-center-row { flex-direction: column !important; align-items: center !important; margin-left: 0; }
+      .progress-circle-col { margin-right: 0; align-items: center; margin-bottom: 2rem; }
+      .dashboard-main-content { max-width: 100%; }
+    }
+    /* Remove the full-page overlay */
+    body::before { display: none !important; }
+    </style>
+
+    <script>
+    // Handle proof image modal
+    document.addEventListener('DOMContentLoaded', function() {
+      var proofModal = document.getElementById('proofModal');
+      var modalProofImg = document.getElementById('modalProofImg');
+      document.querySelectorAll('.proof-img').forEach(function(img) {
+        img.addEventListener('click', function(event) {
+          event.stopPropagation(); // Prevent row click
+          var url = this.getAttribute('data-proof-url');
+          modalProofImg.src = url;
+        });
+      });
+
+      // Handle activity details modal
+      document.querySelectorAll('.activity-row').forEach(function(row) {
+        row.addEventListener('click', function(event) {
+          // Only trigger if not clicking the image
+          if(event.target.classList.contains('proof-img')) return;
+          document.getElementById('detailsActivityType').textContent = row.getAttribute('data-activity-type');
+          document.getElementById('detailsDescription').textContent = row.getAttribute('data-description');
+          document.getElementById('detailsNumberOfStudents').textContent = row.getAttribute('data-number-of-students');
+          document.getElementById('detailsNumberOfClients').textContent = row.getAttribute('data-number-of-clients');
+          document.getElementById('detailsDate').textContent = row.getAttribute('data-date');
+          document.getElementById('detailsHoursRendered').textContent = row.getAttribute('data-hours-rendered');
+          var proofUrl = row.getAttribute('data-proof-url');
+          if(proofUrl) {
+            document.getElementById('detailsProof').innerHTML = '<a href="' + proofUrl + '" target="_blank">View Proof</a>';
+          } else {
+            document.getElementById('detailsProof').textContent = 'No proof uploaded';
+          }
+          var detailsModal = new bootstrap.Modal(document.getElementById('detailsModal'));
+          detailsModal.show();
+        });
+      });
+    });
+    </script>
+
+    <script>
+    // Progress Circle Animation
+    const totalHours = Number("{{ total_hours_all|default:0 }}");
+    const percent = Math.min(Math.round((totalHours / 60) * 100), 100);
+    const circle = document.getElementById('progress-bar');
+    const percentText = document.getElementById('progress-percent');
+    const hoursText = document.getElementById('progress-hours');
+    const circumference = 2 * Math.PI * 100;
+    let progress = 0;
+    function animateProgress() {
+      if (progress < percent) {
+        progress++;
+        const offset = circumference - (progress / 100) * circumference;
+        circle.style.strokeDashoffset = offset;
+        percentText.textContent = progress + '%';
+        hoursText.textContent = `${totalHours.toFixed(2)} / 60 Hours Rendered`;
+        requestAnimationFrame(animateProgress);
+      } else {
+        const offset = circumference - (percent / 100) * circumference;
+        circle.style.strokeDashoffset = offset;
+        percentText.textContent = percent + '%';
+        hoursText.textContent = `${totalHours.toFixed(2)} / 60 Hours Rendered`;
+      }
+    }
+    circle.style.strokeDasharray = circumference;
+    circle.style.strokeDashoffset = circumference;
+    animateProgress();
+    </script>
+{% endblock %}

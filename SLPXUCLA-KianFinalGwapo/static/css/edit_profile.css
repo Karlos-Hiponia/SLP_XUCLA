@@ -1,0 +1,155 @@
+body {
+    background-color: #f4f6f9;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.edit-wrapper {
+    padding: 60px 15px;
+    display: flex;
+    justify-content: center;
+}
+
+.edit-card {
+    background: #fff;
+    padding: 40px;
+    border-radius: 20px;
+    max-width: 820px;
+    width: 100%;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.07);
+    border: 1px solid #e3e3e3;
+    animation: fadeIn 0.5s ease;
+}
+
+.edit-title {
+    text-align: center;
+    color: #3A53A4;
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: 40px;
+}
+
+
+.grid-two-cols {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    font-weight: 600;
+    color: #3A53A4;
+    margin-bottom: 6px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+    background-color: #fdfdfd;
+    transition: border-color 0.3s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: #3A53A4;
+    outline: none;
+}
+
+.help-text {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-top: 4px;
+}
+
+.error-text {
+    font-size: 0.9rem;
+    color: #d9534f;
+    margin-top: 4px;
+}
+
+/* Button group */
+.btn-group {
+    margin-top: 30px;
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.edit-btn {
+    padding: 12px 30px;
+    background-color: #3A53A4;
+    color: #fff;
+    font-size: 1rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.edit-btn:hover {
+    background-color: #2f4292;
+}
+
+.cancel-link {
+    padding: 12px 20px;
+    color: #3A53A4;
+    font-weight: 500;
+    text-decoration: none;
+    border: 1px solid #3A53A4;
+    border-radius: 8px;
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+.cancel-link:hover {
+    background-color: #f1f1f1;
+}
+
+/* Aligned checkbox and label */
+.file-input-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 6px;
+    flex-wrap: wrap;
+}
+
+.file-input-row input[type="file"] {
+    margin-top: -2px;
+}
+
+.file-input-row input[type="checkbox"] {
+    transform: scale(1.2);
+    accent-color: #3A53A4;
+    margin-bottom: 1px;
+}
+
+.clear-label {
+    font-size: 0.95rem;
+    color: #3A53A4;
+    position: relative;
+    top: 2px; 
+}
+
+/* Smooth animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

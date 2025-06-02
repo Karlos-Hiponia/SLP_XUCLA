@@ -1,0 +1,51 @@
+{% extends 'xucla/base.html' %}
+{% load static %}
+
+{% block title %}Home - XUCLA Free Legal Services{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+
+    
+    <div class="banner text-center">
+        <img src="{% static 'images/banner.jpg' %}" alt="TABANG LEGAL" class="img-fluid">
+    </div>
+
+    <p class="mt-3 text-center">
+        Our team of law interns and supervising lawyers are ready to assist you with your legal concerns.
+        This page operates from Monday - Friday at 9 AM - 5 PM.
+        Replies are sent within 3-4 working days. We reserve the right to refer you to proper agencies with your consent.
+    </p>
+
+    <!-- Services Section -->
+    <div class="row justify-content-center mt-5">
+        {% for service in services %}
+            <div class="col-md-4 text-center mb-4">
+                {% if service.link %}
+                    <a href="{{ service.link }}" target="_blank">
+                        <img src="{% static service.image_url %}" alt="{{ service.title }}"
+                             class="img-fluid rounded" style="max-width: 100%; height: auto; object-fit: cover;">
+                    </a>
+                {% else %}
+                    <img src="{% static service.image_url %}" alt="{{ service.title }}"
+                         class="img-fluid rounded" style="max-width: 100%; height: auto; object-fit: cover;">
+                {% endif %}
+                <h4 class="mt-3">{{ service.title }}</h4>
+                <p>{{ service.description }}</p>
+            </div>
+        {% endfor %}
+    </div>
+    
+
+</div>
+
+<!-- About Section -->
+<div id="about" class="container mt-5">
+    <h3>About Us</h3>
+    <p>
+        The Xavier University Center for Legal Assistance provides free legal services
+        with the help of student interns and supervising attorneys...
+    </p>
+</div>
+{% endblock %}

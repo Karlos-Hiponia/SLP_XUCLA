@@ -1,0 +1,39 @@
+{% load custom_filters %}
+<div>
+    <div class="admin-section-title">PENDING</div>
+    <ul class="admin-user-list">
+        {% for profile in pending_profiles %}
+        <li>
+            <a href="{% url 'admin_user_detail' profile.user.id %}" class="admin-user-link">
+                {% if profile.user.first_name or profile.user.last_name %}
+                    {{ profile.user.first_name }} {{ profile.user.last_name }}
+                {% else %}
+                    {{ profile.user.email }}
+                {% endif %}
+            </a>
+            <span class="admin-hours">{{ user_hours|dict_get:profile.user.id }} hrs</span>
+        </li>
+        {% empty %}
+        <li>No pending users</li>
+        {% endfor %}
+    </ul>
+</div>
+<div>
+    <div class="admin-section-title">COMPLETED</div>
+    <ul class="admin-user-list">
+        {% for profile in completed_profiles %}
+        <li>
+            <a href="{% url 'admin_user_detail' profile.user.id %}" class="admin-user-link">
+                {% if profile.user.first_name or profile.user.last_name %}
+                    {{ profile.user.first_name }} {{ profile.user.last_name }}
+                {% else %}
+                    {{ profile.user.email }}
+                {% endif %}
+            </a>
+            <span class="admin-hours">{{ user_hours|dict_get:profile.user.id }} hrs</span>
+        </li>
+        {% empty %}
+        <li>No completed users</li>
+        {% endfor %}
+    </ul>
+</div> 

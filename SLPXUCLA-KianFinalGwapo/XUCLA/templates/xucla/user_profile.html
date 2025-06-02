@@ -1,0 +1,80 @@
+{% extends "xucla/base.html" %}
+{% load static %}
+{% block title %}My Profile{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'css/user_profile.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="profile-wrapper">
+    <div class="profile-card">
+        
+        <div class="profile-header">
+            {% if profile.profile_picture %}
+                <img src="{{ profile.profile_picture.url }}" alt="Profile Picture">
+            {% else %}
+                <img src="{% static 'default-user.png' %}" alt="Default Profile">
+            {% endif %}
+            <div>
+                <div class="name">{{ request.user.first_name }} {{ request.user.last_name }}</div>
+                <div class="subtitle">Legal Professional | Registered User</div>
+            </div>
+        </div>
+
+        <!-- User Information Section -->
+        <div class="profile-section-title">Basic Information</div>
+        <div class="profile-info">
+            <div class="label">Nickname:</div>
+            <div class="value">{{ profile.nickname }}</div>
+
+            <div class="label">Roll Number:</div>
+            <div class="value">{{ profile.roll_number }}</div>
+
+            <div class="label">Year Admitted:</div>
+            <div class="value">{{ profile.year_admitted }}</div>
+
+            <div class="label">Sector:</div>
+            <div class="value">{{ profile.sector }}</div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Office Section -->
+        <div class="profile-section-title">Office Information</div>
+        <div class="profile-info">
+            <div class="label">Office Name:</div>
+            <div class="value">{{ profile.office_name }}</div>
+
+            <div class="label">Office Address:</div>
+            <div class="value">{{ profile.office_address }}</div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Education Section -->
+        <div class="profile-section-title">Education</div>
+        <div class="profile-info">
+            <div class="label">Law School:</div>
+            <div class="value">{{ profile.law_school }}</div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Contact Section -->
+        <div class="profile-section-title">Contact Information</div>
+        <div class="profile-info">
+            <div class="label">Email:</div>
+            <div class="value">{{ request.user.email }}</div>
+
+            <div class="label">Work Cell:</div>
+            <div class="value">{{ profile.work_cell }}</div>
+        </div>
+    </div>
+    <div class="text-center mt-3">
+        <a href="{% url 'edit_profile' %}" class="btn btn-primary">
+            <i class="bi bi-pencil-square"></i> Edit Profile
+        </a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends "xucla/base.html" %}
+{% load static %}
+
+{% block title %}Edit Profile{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/edit_profile.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="edit-wrapper">
+    <div class="edit-card">
+        <h2 class="edit-title"><i class="bi bi-pencil-square me-2"></i> Edit Your Profile</h2>
+        <form method="post" enctype="multipart/form-data" class="edit-form">
+            {% csrf_token %}
+            <div class="grid-two-cols">
+                <!-- Render all fields except profile_picture -->
+                {% for field in form %}
+                    {% if field.name != 'profile_picture' %}
+                        <div class="form-group">
+                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.help_text %}
+                                <div class="help-text">{{ field.help_text }}</div>
+                            {% endif %}
+                            {% for error in field.errors %}
+                                <div class="error-text">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+
+                <!-- Custom rendering for profile_picture with aligned Clear checkbox -->
+                <div class="form-group">
+                    <label for="{{ form.profile_picture.id_for_label }}">Profile Picture</label>
+                    <div class="file-input-row">
+    {{ form.profile_picture }}
+    {% if form.profile_picture.clear_checkbox %}
+        {{ form.profile_picture.clear_checkbox }}
+        <label for="{{ form.profile_picture.clear_checkbox.id_for_label }}" class="clear-fix-label">
+            {{ form.profile_picture.clear_checkbox_label }}
+        </label>
+    {% endif %}
+</div>
+
+                    {% for error in form.profile_picture.errors %}
+                        <div class="error-text">{{ error }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button type="submit" class="edit-btn">Save Changes</button>
+                <a href="{% url 'user_profile' %}" class="cancel-link">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

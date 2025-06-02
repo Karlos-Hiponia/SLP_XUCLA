@@ -1,0 +1,229 @@
+{% extends "xucla/base.html" %}
+{% load custom_filters %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+<style>
+.admin-dashboard-container {
+    display: flex;
+    min-height: 70vh;
+    position: relative;
+}
+.admin-main {
+    flex: 1;
+    padding: 2rem;
+    margin-right: 320px; /* Prevents content from going under the side panel */
+}
+.admin-side-panel {
+    width: 320px;
+    background: #253793;
+    color: #fff;
+    padding: 2rem 1rem;
+    border-radius: 12px 0 0 12px;
+    box-shadow: -2px 0 8px rgba(41,87,191,0.08);
+    position: fixed;
+    right: 0;
+    top: 100px; /* Make sure this matches your navbar height */
+    height: calc(100vh - 64px);
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    z-index: 900; /* Lower than navbar if navbar is 1000+ */
+    transition: right 0.3s;
+}
+.admin-section-title {
+    font-weight: bold;
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+    color: #ffde59;
+    letter-spacing: 1px;
+}
+.admin-user-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.admin-user-list li {
+    background: #2957bf;
+    margin-bottom: 0.5rem;
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: background 0.2s;
+}
+.admin-user-list li:hover {
+    background: #2c6fe2;
+}
+.admin-user-link {
+    color: #fff;
+    text-decoration: none;
+    font-weight: 500;
+}
+.admin-user-link:hover {
+    text-decoration: underline;
+    color: #ffde59;
+}
+.admin-hours {
+    background: #ffde59;
+    color: #253793;
+    font-weight: bold;
+    border-radius: 12px;
+    padding: 2px 10px;
+    font-size: 0.95em;
+    margin-left: 8px;
+}
+.summary-cards {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+.summary-card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(41,87,191,0.10);
+    padding: 1.5rem 2.5rem;
+    min-width: 140px;
+    text-align: center;
+    transition: box-shadow 0.2s;
+    border: 2px solid #e0e6f1;
+}
+.summary-card .label {
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    letter-spacing: 1px;
+}
+.summary-card .value {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 0.2rem;
+}
+.summary-card.users .label { color: #253793; }
+.summary-card.users .value { color: #2957bf; }
+.summary-card.pending .label { color: #ffde59; }
+.summary-card.pending .value { color: #ffde59; }
+.summary-card.completed .label { color: #2ecc71; }
+.summary-card.completed .value { color: #2ecc71; }
+
+
+.hamburger {
+    position: fixed;
+    top: 110px;
+    right: 24px;
+    z-index: 1200;
+    width: 40px;
+    height: 40px;
+    background: #3A53A4;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(41,87,191,0.10);
+    border: none;
+}
+.hamburger span {
+    display: block;
+    width: 24px;
+    height: 3px;
+    background: #fff;
+    margin: 4px 0;
+    border-radius: 2px;
+    transition: 0.3s;
+}
+.admin-side-panel.collapsed {
+    right: -340px;
+}
+</style>
+
+
+<button class="hamburger" id="sidePanelToggle" aria-label="Toggle side panel">
+    <span></span>
+    <span></span>
+    <span></span>
+</button>
+
+<div class="admin-dashboard-container">
+    <div class="admin-main">
+        <h2>Admin Dashboard</h2>
+        <p>Manage user's works and approvals.</p>
+        <div class="summary-cards">
+            <div class="summary-card users">
+                <div class="label">USERS</div>
+                <div class="value">{{ user_count }}</div>
+            </div>
+            <div class="summary-card pending">
+                <div class="label">PENDING</div>
+                <div class="value">{{ pending_count }}</div>
+            </div>
+            <div class="summary-card completed">
+                <div class="label">COMPLETED</div>
+                <div class="value">{{ completed_count }}</div>
+            </div>
+        </div>
+        <div style="margin-bottom: 2rem;">
+            <div style="font-size: 1.2rem; font-weight: bold; color: #253793; margin-bottom: 0.5rem;">NOTIFICATIONS</div>
+            {% if notifications %}
+                <ul style="list-style: none; padding: 0;">
+                    {% for note in notifications %}
+                        <li style="background: #fffae6; color: #253793; border-left: 6px solid #ffde59; padding: 0.75rem 1rem; margin-bottom: 0.5rem; border-radius: 6px; font-weight: 500;">{{ note }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div style="color: #888;">No notifications</div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="admin-side-panel">
+        <div>
+            <div class="admin-section-title">PENDING</div>
+            <ul class="admin-user-list">
+                {% for profile in pending_profiles %}
+                <li>
+                    <a href="{% url 'admin_user_detail' profile.user.id %}" class="admin-user-link">
+                        {% if profile.user.first_name or profile.user.last_name %}
+                            {{ profile.user.first_name }} {{ profile.user.last_name }}
+                        {% else %}
+                            {{ profile.user.email }}
+                        {% endif %}
+                    </a>
+                    <span class="admin-hours">{{ user_hours|dict_get:profile.user.id }} hrs</span>
+                </li>
+                {% empty %}
+                <li>No pending users</li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div>
+            <div class="admin-section-title">COMPLETED</div>
+            <ul class="admin-user-list">
+                {% for profile in completed_profiles %}
+                <li>
+                    <a href="{% url 'admin_user_detail' profile.user.id %}" class="admin-user-link">
+                        {% if profile.user.first_name or profile.user.last_name %}
+                            {{ profile.user.first_name }} {{ profile.user.last_name }}
+                        {% else %}
+                            {{ profile.user.email }}
+                        {% endif %}
+                    </a>
+                    <span class="admin-hours">{{ user_hours|dict_get:profile.user.id }} hrs</span>
+                </li>
+                {% empty %}
+                <li>No completed users</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+// Side panel toggle logic
+const sidePanel = document.querySelector('.admin-side-panel');
+const toggleBtn = document.getElementById('sidePanelToggle');
+toggleBtn.addEventListener('click', function() {
+    sidePanel.classList.toggle('collapsed');
+});
+</script>
+{% endblock %} 

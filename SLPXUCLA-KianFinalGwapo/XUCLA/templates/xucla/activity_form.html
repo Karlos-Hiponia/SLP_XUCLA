@@ -1,0 +1,154 @@
+{% extends "xucla/base.html" %}
+{% load static %}
+
+{% block title %}Submit Activity{% endblock %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'css/activity_form.css' %}">
+
+<style>
+
+.qmark-tooltip {
+    display: inline-block;
+    position: relative;
+    cursor: pointer;
+    color: #3A53A4;
+    font-weight: bold;
+    margin-left: 6px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid #3A53A4;
+    background: #fff;
+    text-align: center;
+    line-height: 18px;
+    font-size: 1.1em;
+    vertical-align: middle;
+    transition: background 0.2s, color 0.2s;
+}
+.qmark-tooltip:hover, .qmark-tooltip:focus {
+    background: #3A53A4;
+    color: #fff;
+}
+.qmark-tooltip .qmark-help {
+    display: none;
+    position: absolute;
+    left: 120%;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #fffbe6;
+    color: #253793;
+    border: 1px solid #e0e6f1;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 0.98em;
+    min-width: 220px;
+    max-width: 320px;
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(41,87,191,0.10);
+    white-space: normal;
+}
+.qmark-tooltip:hover .qmark-help,
+.qmark-tooltip:focus-within .qmark-help {
+    display: block;
+}
+</style>
+
+{% if messages %}
+    <div class="mt-3">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+{% if form.errors %}
+    <div class="alert alert-danger">
+        Please correct the errors below.
+    </div>
+{% endif %}
+
+<h1>Submit Activity</h1>
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {% for field in form %}
+        {% if field.name == 'activity_type' %}
+            <div class="mb-3">
+                <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% for error in field.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="mb-3" id="other-activity-type-container" style="display: none;">
+                <label class="form-label" for="id_other_activity_type">Please specify activity type</label>
+                <input type="text" name="other_activity_type" id="id_other_activity_type" class="form-control" maxlength="100" value="{{ form.other_activity_type.value|default_if_none:'' }}">
+                {% for error in form.other_activity_type.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+        {% elif field.name in 'description number_of_students number_of_clients hours_rendered proof' %}
+            <div class="mb-3">
+                <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}
+                    {% if field.help_text %}
+                        <span class="qmark-tooltip" tabindex="0">?
+                            <span class="qmark-help">{{ field.help_text }}</span>
+                        </span>
+                    {% endif %}
+                </label>
+                {{ field }}
+                {% for error in field.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+        {% elif field.name != 'other_activity_type' and field.name != 'declaration' and field.name != 'status' %}
+
+            <div class="mb-3">
+                <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% for error in field.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endfor %}
+    
+    <div class="mb-3" style="margin-left: 0;">
+        <div class="form-check" style="display: flex; align-items: flex-start;">
+            {{ form.declaration }}
+            <label class="form-check-label" for="{{ form.declaration.id_for_label }}" style="margin-left: 8px; font-weight: 600; color: #253793;">{{ form.declaration.label }}</label>
+        </div>
+        {% for error in form.declaration.errors %}
+            <div class="text-danger small">{{ error }}</div>
+        {% endfor %}
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const activityTypeSelect = document.querySelector('select[name="activity_type"]');
+    const otherActivityTypeContainer = document.getElementById('other-activity-type-container');
+
+    function toggleOtherBox() {
+        if (activityTypeSelect.value === 'Other') {
+            otherActivityTypeContainer.style.display = 'block';
+        } else {
+            otherActivityTypeContainer.style.display = 'none';
+        }
+    }
+
+    if (activityTypeSelect && otherActivityTypeContainer) {
+        activityTypeSelect.addEventListener('change', toggleOtherBox);
+        toggleOtherBox(); // Initial check on page load
+    }
+});
+</script>
+{% endblock %}

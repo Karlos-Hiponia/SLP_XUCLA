@@ -1,0 +1,129 @@
+{% extends "xucla/base.html" %}
+{% block title %}Check your email{% endblock %}
+{% block content %}
+<style>
+.verify-container {
+    max-width: 400px;
+    margin: 3rem auto;
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 2px 16px rgba(41,87,191,0.10);
+    padding: 2.5rem 2rem 2rem 2rem;
+    text-align: center;
+}
+.verify-title {
+    color: #253793;
+    font-weight: bold;
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+.verify-desc {
+    color: #2957bf;
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+}
+.code-inputs {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+.code-input {
+    width: 48px;
+    height: 56px;
+    font-size: 2rem;
+    text-align: center;
+    border: 2px solid #2c6fe2;
+    border-radius: 8px;
+    outline: none;
+    transition: border 0.2s;
+    color: #253793;
+    background: #f8faff;
+}
+.code-input:focus {
+    border: 2px solid #2957bf;
+    background: #fff;
+}
+.verify-btn {
+    width: 100%;
+    background: #2957bf;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    transition: background 0.2s;
+}
+.verify-btn:hover {
+    background: #2c6fe2;
+}
+.resend-link {
+    color: #2957bf;
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 1rem;
+}
+.resend-link:hover {
+    color: #253793;
+}
+@media (max-width: 500px) {
+    .verify-container { padding: 1.5rem 0.5rem; }
+    .code-input { width: 38px; height: 44px; font-size: 1.3rem; }
+}
+</style>
+<div class="verify-container">
+    <div class="verify-title">Check your email</div>
+    <div class="verify-desc">
+        Enter the 6-digit verification code sent to <b>{{ request.session.email|default:'your email' }}</b>
+    </div>
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+    <form method="post" id="verify-form" autocomplete="off">
+        {% csrf_token %}
+        <div class="code-inputs">
+            {% for i in "123456" %}
+            <input type="text" maxlength="1" pattern="[0-9]" class="code-input" name="code{{ forloop.counter }}" id="code{{ forloop.counter }}" required>
+            {% endfor %}
+        </div>
+        <input type="hidden" name="verification_code" id="verification_code">
+        <button type="submit" class="verify-btn">Verify</button>
+    </form>
+    <div style="margin-top:1rem;">
+        <a href="{% url 'resend_verification' %}" class="resend-link">Resend Code</a>
+    </div>
+</div>
+<script>
+
+const inputs = document.querySelectorAll('.code-input');
+inputs[0].focus();
+inputs.forEach((input, idx) => {
+    input.addEventListener('input', function() {
+        if (this.value.length === 1 && idx < inputs.length - 1) {
+            inputs[idx + 1].focus();
+        }
+       
+        this.value = this.value.replace(/[^0-9]/g, '');
+    });
+    input.addEventListener('keydown', function(e) {
+        if (e.key === 'Backspace' && !this.value && idx > 0) {
+            inputs[idx - 1].focus();
+        }
+    });
+});
+
+const form = document.getElementById('verify-form');
+form.addEventListener('submit', function(e) {
+    let code = '';
+    inputs.forEach(input => code += input.value);
+    document.getElementById('verification_code').value = code;
+});
+</script>
+{% endblock %} 

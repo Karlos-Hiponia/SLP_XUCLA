@@ -1,0 +1,138 @@
+{% extends "xucla/base.html" %}
+{% block title %}Superuser Account Management{% endblock %}
+{% block content %}
+<style>
+.su-container {
+    max-width: 900px;
+    margin: 2rem auto;
+    background: #f8faff;
+    border-radius: 16px;
+    box-shadow: 0 2px 16px rgba(41,87,191,0.08);
+    padding: 2rem 2.5rem;
+}
+.su-title {
+    color: #253793;
+    font-weight: bold;
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+}
+.su-section-title {
+    color: #2957bf;
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-top: 2rem;
+    margin-bottom: 0.5rem;
+}
+.su-table {
+    width: 100%;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 2rem;
+}
+.su-table th {
+    background: #2c6fe2;
+    color: #fff;
+    padding: 0.75rem;
+}
+.su-table td {
+    padding: 0.75rem;
+    border-bottom: 1px solid #e0e6f1;
+}
+.su-btn {
+    border: none;
+    border-radius: 6px;
+    padding: 6px 16px;
+    font-weight: 500;
+    margin-right: 6px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.su-btn-make-admin {
+    background: #2957bf;
+    color: #fff;
+}
+.su-btn-remove-admin {
+    background: #ffde59;
+    color: #253793;
+}
+.su-btn-delete {
+    background: #e74c3c;
+    color: #fff;
+}
+.su-btn-edit {
+    background: #2c6fe2;
+    color: #fff;
+}
+.su-btn:hover {
+    opacity: 0.85;
+}
+</style>
+<div class="su-container">
+    <div class="su-title">Superuser Account Management</div>
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+    <div class="su-section-title">Admin Accounts</div>
+    <table class="su-table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for admin in admins %}
+            <tr>
+                <td>{{ admin.first_name }} {{ admin.last_name }}</td>
+                <td>{{ admin.email }}</td>
+                <td>
+                    <form method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="user_id" value="{{ admin.id }}">
+                        <button type="submit" name="action" value="remove_admin" class="su-btn su-btn-remove-admin">Remove Admin</button>
+                        <button type="submit" name="action" value="delete_user" class="su-btn su-btn-delete">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="su-section-title">All Users</div>
+    <table class="su-table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Is Admin?</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.first_name }} {{ user.last_name }}</td>
+                <td>{{ user.email }}</td>
+                <td>{% if user.is_staff %}<span style="color:#2957bf;font-weight:bold;">Yes</span>{% else %}No{% endif %}</td>
+                <td>
+                    <form method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="user_id" value="{{ user.id }}">
+                        {% if not user.is_staff %}
+                        <button type="submit" name="action" value="make_admin" class="su-btn su-btn-make-admin">Make Admin</button>
+                        {% endif %}
+                        <button type="submit" name="action" value="delete_user" class="su-btn su-btn-delete">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %} 

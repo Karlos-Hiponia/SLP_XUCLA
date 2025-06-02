@@ -1,0 +1,141 @@
+{% extends "xucla/base.html" %}
+
+{% block title %}Register{% endblock %}
+
+{% block content %}
+<div class="register-container py-4">
+    <h2 class="text-center text-primary mb-4">Create Your Account</h2>
+
+    
+    {% if messages %}
+    <div class="alert alert-info">
+        {% for message in messages %}
+            <p class="mb-0">{{ message }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <form method="POST" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+        <div class="row g-3">
+            <!-- First and Last Name -->
+            <div class="col-md-6">
+                <label>First Name</label>
+                <input type="text" name="first_name" class="form-control" required value="{{ form.data.first_name }}">
+                {% for error in form.first_name.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div class="col-md-6">
+                <label>Last Name</label>
+                <input type="text" name="last_name" class="form-control" required value="{{ form.data.last_name }}">
+                {% for error in form.last_name.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <!-- Nickname and Roll Number -->
+            <div class="col-md-6">
+                <label>Nickname</label>
+                <input type="text" name="nickname" class="form-control" value="{{ form.data.nickname }}">
+                {% for error in form.nickname.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div class="col-md-6">
+                <label>Roll Number</label>
+                <input type="text" name="roll_number" class="form-control" value="{{ form.data.roll_number }}">
+                {% for error in form.roll_number.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <!-- Year Admitted and Sector -->
+            <div class="col-md-6">
+                <label>Year Admitted</label>
+                <input type="text" name="year_admitted" class="form-control" value="{{ form.data.year_admitted }}">
+                {% for error in form.year_admitted.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div class="col-md-6">
+                <label>Sector</label>
+                <input type="text" name="sector" class="form-control" value="{{ form.data.sector }}">
+                {% for error in form.sector.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <!-- Office Info -->
+            <div class="col-md-6">
+                <label>Office Name</label>
+                <input type="text" name="office_name" class="form-control" value="{{ form.data.office_name }}">
+                {% for error in form.office_name.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div class="col-md-6">
+                <label>Office Address</label>
+                <input type="text" name="office_address" class="form-control" value="{{ form.data.office_address }}">
+                {% for error in form.office_address.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <!-- Law School and Email -->
+            <div class="col-md-6">
+                <label>Law School</label>
+                <input type="text" name="law_school" class="form-control" value="{{ form.data.law_school }}">
+                {% for error in form.law_school.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div class="col-md-6">
+                <label>Email Address</label>
+                <input type="email" name="email" class="form-control" required value="{{ form.data.email }}">
+                {% for error in form.email.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <!-- Work Cell and Profile Picture -->
+            <div class="col-md-6">
+                <label>Work Cell</label>
+                <input type="text" name="work_cell" class="form-control" value="{{ form.data.work_cell }}">
+                {% for error in form.work_cell.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div class="col-md-6">
+                <label>Profile Picture</label>
+                <input type="file" name="profile_picture" class="form-control">
+                {% for error in form.profile_picture.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <!-- Passwords -->
+            <div class="col-md-6">
+                <label>Password</label>
+                <input type="password" name="password" class="form-control" required>
+                {% for error in form.password.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div class="col-md-6">
+                <label>Retype Password</label>
+                <input type="password" name="confirm_password" class="form-control" required>
+                {% for error in form.confirm_password.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-purple w-100 mt-4">Register</button>
+    </form>
+
+    <p class="text-center mt-3">Already have an account? 
+        <a href="{% url 'login' %}" class="text-decoration-none">Login here</a>
+    </p>
+</div>
+{% endblock %}
